@@ -15,6 +15,6 @@ runs:
       shell: bash
       continue-on-error: true
     - name: Re-run pre-commit if failed
-      if: steps.run_pre_commit != 'success'
+      if: steps.run_pre_commit.outcome != 'success'
       run: pre-commit run --all-files
       shell: bash
