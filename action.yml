@@ -1,5 +1,5 @@
-name: `Pre-commit autoupdate`
-description: `Runs pre-commit autoupdate, then runs against all files`
+name: 'Pre-commit autoupdate'
+description: 'Runs pre-commit autoupdate, then runs against all files'
 branding:
   icon: "chevrons-up"
   color: "purple"
