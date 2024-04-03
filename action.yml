@@ -3,9 +3,56 @@ description: `Runs pre-commit autoupdate, then runs against all files`
 branding:
   icon: "chevrons-up"
   color: "purple"
+inputs:
+  python-version:
+    description: "The python version to use with poetry"
+    default: '3.10.12'
+  poetry-version:
+    description: "The poetry version to use"
+    default: '1.8.2'
+
+
 runs:
   using: "composite"
   steps:
+    #----------------------------------------------
+    #  Check minimum python & poetry version
+    #----------------------------------------------
+    # 3.10.5 is the min version support for ubuntu 22.04 (latest)
+    # Poetry 1.2 is the first release that support python >=3.8
+    - name: Check compatible version
+      run: |
+        min_python_version="3.10.5"
+        min_poetry_version="1.2"
+        if [ "$(printf '%s\n' "$min_python_version" "${{ inputs.python-version }}" | sort -V | head -n1)" != "$min_python_version" ]; then
+          echo "Less than the minimum required python version: ${min_python_version}, exiting workflow"
+          echo "RUN_UPDATE=false" >> $GITHUB_ENV
+          exit 0
+        fi
+
+        if [ "$(printf '%s\n' "$min_poetry_version" "${{ inputs.poetry-version }}" | sort -V | head -n1)" != "$min_poetry_version" ]; then
+          echo "Less than the minimum required poetry version: ${min_poetry_version}, exiting workflow"
+          echo "RUN_UPDATE=false" >> $GITHUB_ENV
+          exit 0
+        fi
+      shell: bash
+
+    #----------------------------------------------
+    #  Check out the caller repo & Set up python
+    #----------------------------------------------
+    - name: Check out repository
+      if: env.RUN_UPDATE != 'false'
+      uses: actions/checkout@v4
+
+    - name: Set up python
+      if: env.RUN_UPDATE != 'false'
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    #----------------------------------------------
+    #  Run pre-commit autoupdate
+    #----------------------------------------------
     - run: pip install pre-commit
       shell: bash
     - run: pre-commit autoupdate
@@ -18,3 +65,20 @@ runs:
       if: steps.run_pre_commit.outcome != 'success'
       run: pre-commit run --all-files
       shell: bash
+
+    #----------------------------------------------
+    #              Create a pull request
+    #----------------------------------------------
+    #- name: Create Pull Request
+    #  if: env.RUN_UPDATE != 'false'
+    #  uses: peter-evans/create-pull-request@v6
+    #  with:
+    #      token: ${{ github.token }}
+    #      branch: update/pre-commit-update
+    #      title: Update pre-commit
+    #      commit-message: "Chore(deps): Updating `pre-commit`"
+    #      body: |
+    #        Update `pre-commit`.
+
+    #        **Outdated packages**:
+    #            ${{ env.UPDATE_MESSAGE }}
