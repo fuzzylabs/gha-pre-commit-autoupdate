@@ -1,10 +1,18 @@
-# Pre-commit autoupdate
+# Automated Pre-Commit Updates
 
-A Github action to run `pre-commit autoupdate` and run against all files.
+A GitHub action to run `pre-commit autoupdate` and run against all files.
 
 Can be used in workflow to raise a pull request if any updates are required.
 
-## Example
+## Action inputs
+
+This action takes python version as an **optional** input, defaulting to 3.10.12 if no input is given.
+
+| Name | Description                                                                         | Default |
+| --- |-------------------------------------------------------------------------------------| --- |
+| `python-version` | The python version to use with pre-commit, the minimum version required is >=3.10.5 | 3.10.12 |
+
+### Example
 
 ```yaml
 name: Pre-commit autoupdate
@@ -27,12 +35,6 @@ jobs:
           python-version: '3.10'
         
       - uses: fuzzylabs/pre-commit-autoupdate-action@main
-        
-      - uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: update/pre-commit-hooks
-          title: Update pre-commit hooks
-          commit-message: "Chore(deps): Upgrading `pre-commit` dependencies"
-          body: Update version of `pre-commit` hooks to use latest version.
+          python_version: "3.10.12"
 ```
