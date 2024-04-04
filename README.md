@@ -12,7 +12,9 @@ This action takes python version as an **optional** input, defaulting to 3.10.12
 | --- |-------------------------------------------------------------------------------------| --- |
 | `python-version` | The python version to use with pre-commit, the minimum version required is >=3.10.5 | 3.10.12 |
 
-### Example
+## Example
+
+The following is an example of how this action might be used in a workflow.
 
 ```yaml
 name: Pre-commit autoupdate
@@ -28,12 +30,6 @@ jobs:
   auto-update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-        
       - uses: fuzzylabs/pre-commit-autoupdate-action@main
         with:
           python_version: "3.10.12"
