@@ -46,7 +46,11 @@ runs:
     - run: |
         UPDATE_MESSAGE=$(pre-commit autoupdate | grep -i 'updating' | grep -v 'Updating dependencies' | sed 's/Updating//g')
         echo $UPDATE_MESSAGE
-        echo "UPDATE_MESSAGE<<EOF\n${UPDATE_MESSAGE}\nEOF" >> $GITHUB_ENV
+        {
+          echo "EOF"
+          echo UPDATE_MESSAGE<<EOF\n${UPDATE_MESSAGE}
+          echo "EOF"
+        } >> $GITHUB_ENV
       shell: bash
     - id: run_pre_commit
       run: pre-commit run --all-files
