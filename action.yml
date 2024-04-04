@@ -43,7 +43,11 @@ runs:
     #----------------------------------------------
     - run: pip install pre-commit
       shell: bash
-    - run: pre-commit autoupdate
+    - run: |
+        UPDATE_MESSAGE=$(pre-commit autoupdate | grep -i 'updating' | grep -v 'Updating dependencies' | sed 's/Updating//g')
+        echo $UPDATE_MESSAGE
+  
+        echo "UPDATE_MESSAGE=$UPDATE_MESSAGE" >> $GITHUB_ENV
       shell: bash
     - id: run_pre_commit
       run: pre-commit run --all-files
