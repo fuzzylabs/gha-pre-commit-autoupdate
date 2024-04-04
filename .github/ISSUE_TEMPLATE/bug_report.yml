@@ -29,7 +29,7 @@ body:
     id: reproduce
     attributes:
       label: Steps to reproduce the bug
-      description: How did you trigger this bug? Guide us step-by-step.
+      description: How did you trigger this bug? Guide us step-by-step
       value: |
         1.
         2.
@@ -42,7 +42,7 @@ body:
     id: logs
     attributes:
       label: Any relevant log output
-      description: Please include any relevant log output (this will automatically render into code).
+      description: Please include any relevant log output (this will automatically render into code)
       render: shell
 
   - type: markdown
