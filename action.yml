@@ -48,7 +48,7 @@ runs:
         echo $UPDATE_MESSAGE
         {
           echo "EOF"
-          echo UPDATE_MESSAGE<<EOF\n${UPDATE_MESSAGE}
+          echo "UPDATE_MESSAGE=${UPDATE_MESSAGE}"
           echo "EOF"
         } >> $GITHUB_ENV
       shell: bash
