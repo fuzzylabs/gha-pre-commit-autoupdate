@@ -47,8 +47,8 @@ runs:
         UPDATE_MESSAGE=$(pre-commit autoupdate | grep -i 'updating' | grep -v 'Updating dependencies' | sed 's/Updating//g')
         echo $UPDATE_MESSAGE
         {
-          echo "EOF"
-          echo "UPDATE_MESSAGE=${UPDATE_MESSAGE}"
+          echo "UPDATE_MESSAGE<<EOF"
+          echo "${UPDATE_MESSAGE}"
           echo "EOF"
         } >> $GITHUB_ENV
       shell: bash
