@@ -40,5 +40,5 @@ jobs:
     steps:
       - uses: fuzzylabs/pre-commit-autoupdate-action@main
         with:
-          python_version: "3.10.12"
+          python_version: "3.11.5"
 ```
