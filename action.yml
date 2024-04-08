@@ -41,8 +41,8 @@ runs:
     #----------------------------------------------
     #  Run pre-commit autoupdate
     #----------------------------------------------
-    - run: pip install pre-commit
-      if: env.RUN_UPDATE != 'false'
+    - if: env.RUN_UPDATE != 'false'
+      run: pip install pre-commit
       shell: bash
 
     - if: env.RUN_UPDATE != 'false'
