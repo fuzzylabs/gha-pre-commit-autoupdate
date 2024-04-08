@@ -42,8 +42,11 @@ runs:
     #  Run pre-commit autoupdate
     #----------------------------------------------
     - run: pip install pre-commit
+      if: env.RUN_UPDATE != 'false'
       shell: bash
+
     - run: |
+      if: env.RUN_UPDATE != 'false'
         UPDATE_MESSAGE=$(pre-commit autoupdate | grep -i 'updating' | grep -v 'Updating dependencies' | sed 's/Updating//g')
         echo $UPDATE_MESSAGE
         {
@@ -52,12 +55,14 @@ runs:
           echo "EOF"
         } >> $GITHUB_ENV
       shell: bash
+
     - id: run_pre_commit
       run: pre-commit run --all-files
       shell: bash
       continue-on-error: true
+
     - name: Re-run pre-commit if failed
-      if: steps.run_pre_commit.outcome != 'success'
+      if: steps.run_pre_commit.outcome != 'success' && env.RUN_UPDATE != 'false'
       run: pre-commit run --all-files
       shell: bash
 
