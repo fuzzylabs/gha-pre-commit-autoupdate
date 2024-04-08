@@ -45,8 +45,8 @@ runs:
       if: env.RUN_UPDATE != 'false'
       shell: bash
 
-    - run: |
-      if: env.RUN_UPDATE != 'false'
+    - if: env.RUN_UPDATE != 'false'
+      run: |
         UPDATE_MESSAGE=$(pre-commit autoupdate | grep -i 'updating' | grep -v 'Updating dependencies' | sed 's/Updating//g')
         echo $UPDATE_MESSAGE
         {
@@ -57,6 +57,7 @@ runs:
       shell: bash
 
     - id: run_pre_commit
+      if: env.RUN_UPDATE != 'false'
       run: pre-commit run --all-files
       shell: bash
       continue-on-error: true
