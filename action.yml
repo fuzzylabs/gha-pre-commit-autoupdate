@@ -1,20 +1,83 @@
-name: `Pre-commit autoupdate`
-description: `Runs pre-commit autoupdate, then runs against all files`
+name: 'Pre-commit autoupdate'
+description: 'Runs pre-commit autoupdate, then runs against all files'
 branding:
   icon: "chevrons-up"
   color: "purple"
+inputs:
+  python-version:
+    description: "The python version to use with pre-commit"
+    default: '3.10.12'
+
 runs:
   using: "composite"
   steps:
-    - run: pip install pre-commit
+    #----------------------------------------------
+    #  Check minimum python version
+    #----------------------------------------------
+    # 3.10.5 is the min version support for ubuntu 22.04 (latest)
+    - name: Check compatible version
+      run: |
+        min_python_version="3.10.5"
+        if [ "$(printf '%s\n' "$min_python_version" "${{ inputs.python-version }}" | sort -V | head -n1)" != "$min_python_version" ]; then
+          echo "Less than the minimum required python version: ${min_python_version}, exiting workflow"
+          echo "RUN_UPDATE=false" >> $GITHUB_ENV
+          exit 0
+        fi
       shell: bash
-    - run: pre-commit autoupdate
+
+    #----------------------------------------------
+    #  Check out the caller repo & Set up python
+    #----------------------------------------------
+    - name: Check out repository
+      if: env.RUN_UPDATE != 'false'
+      uses: actions/checkout@v4
+
+    - name: Set up python
+      if: env.RUN_UPDATE != 'false'
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    #----------------------------------------------
+    #  Run pre-commit autoupdate
+    #----------------------------------------------
+    - if: env.RUN_UPDATE != 'false'
+      run: pip install pre-commit
       shell: bash
+
+    - if: env.RUN_UPDATE != 'false'
+      run: |
+        UPDATE_MESSAGE=$(pre-commit autoupdate | grep -i 'updating' | grep -v 'Updating dependencies' | sed 's/Updating//g')
+        echo $UPDATE_MESSAGE
+        {
+          echo "UPDATE_MESSAGE<<EOF"
+          echo "${UPDATE_MESSAGE}"
+          echo "EOF"
+        } >> $GITHUB_ENV
+      shell: bash
+
     - id: run_pre_commit
+      if: env.RUN_UPDATE != 'false'
       run: pre-commit run --all-files
       shell: bash
       continue-on-error: true
+
     - name: Re-run pre-commit if failed
-      if: steps.run_pre_commit.outcome != 'success'
+      if: steps.run_pre_commit.outcome != 'success' && env.RUN_UPDATE != 'false'
       run: pre-commit run --all-files
       shell: bash
+
+    #----------------------------------------------
+    #              Create a pull request
+    #----------------------------------------------
+    - name: Create Pull Request
+      if: env.RUN_UPDATE != 'false'
+      uses: peter-evans/create-pull-request@v6
+      with:
+          token: ${{ github.token }}
+          branch: update/pre-commit-update
+          title: Update pre-commit
+          commit-message: "Chore(deps): Updating `pre-commit`"
+          body: |
+            Update `pre-commit`.
+                ${{ env.UPDATE_MESSAGE }}
